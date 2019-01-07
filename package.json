@@ -1,0 +1,21 @@
+{
+  "name": "course-renamer",
+  "version": "1.0.1",
+  "description": "CLI tool to rename Courses to be compatible with PLEX",
+  "main": "index.js",
+  "preferGlobal": true,
+  "bin": "./index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.19.0",
+    "inquirer": "^6.2.1",
+    "mongoose": "^5.4.2",
+    "@ffmpeg-installer/ffmpeg": "^1.0.17",
+    "@ffprobe-installer/ffprobe": "^1.0.9",
+    "fluent-ffmpeg": "^2.1.2"
+  }
+}
