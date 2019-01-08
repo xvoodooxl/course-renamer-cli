@@ -3,44 +3,51 @@ const os = require('os');
 const path = require('path');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
+const { padNumber, sanitizeString } = require('./helpers');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+/**
+ * Find all files inside a dir, recursively.
+ * @function listItems
+ * @param  {string} dir path to directory to list all files that meet the req
+ * @return {array[]} Array with all file names that are inside the directory.
+ */
 
-exports.listItems = (pathToDir) => {
-  let finished = [];
-  let result = [];
-  if (os.platform() === 'win32') {
-    const items = fs.readdirSync(pathToDir);
-    items.forEach(item => {
-      const newObject = {
-        fullPath: path.join(pathToDir, '\\', item),
-        folderPath: path.parse(item).dir.normalize(),
-        folderName: pathToDir.split('\\').pop(),
-        extname: path.parse(item).ext,
-        filename: path.parse(item).name
-      };
-      finished.push(newObject);
-      result = finished.filter(item => (item.extname === '.mp4' || item.extname === '.mkv'));
-    });
+exports.listItems = (dir) => {
+  let counter = 1;
+  
+  const flatten = arr => arr.reduce((acc, val) =>
+    acc.concat(Array.isArray(val) ? flatten(val) : val), []);
+  Array.prototype.flatten = function () { return flatten(this) };
 
-  } else if (os.platform() === 'linux') {
-    const items = fs.readdirSync(pathToDir);
-    items.forEach(item => {
-      const newObject = {
-        fullPath: path.join(pathToDir, '/', item),
-        folderPath: pathToDir,
-        folderName: pathToDir.split('/').pop(),
-        extname: path.parse(item).ext,
-        filename: path.parse(item).name,
-        fullname: path.parse(item).base
-      };
-      finished.push(newObject);
-      result = finished.filter(item => (item.extname === '.mp4' || item.extname === '.mkv'));
-    });
-  }
+  const walkSync = dir => fs.readdirSync(dir)
+    .map(file => fs.statSync(path.join(dir, file)).isDirectory()
+      ? walkSync(path.join(dir, file))
+      : path.join(dir, file).replace(/\\/g, '/')).flatten();
 
-  console.log('Success! List created 😁');
+  const result = [];
+
+  const filtered = walkSync(dir).filter(item => (path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'));
+
+  console.log(filtered);
+
+  filtered.forEach(item => {
+    const data = {
+      fullPath: path.join(path.parse(item).dir, '/', path.parse(item).base).replace(/\\/g, '/'),
+      folderPath: path.parse(item).dir,
+      folderName: path.parse(item).dir.split('/').pop(),
+      extname: path.parse(item).ext,
+      filename: path.parse(item).name,
+      fullname: path.parse(item).dir.split('/').pop(),
+      number: counter
+    };
+
+    data.newname = `${path.parse(item).dir.split('/').slice(-2, -1)} - s01e${padNumber(counter)} - ${sanitizeString(data.filename)}`;
+    result.push(data);
+    counter = counter + 1;
+  });
+
   return result;
 };
 
@@ -48,24 +55,24 @@ exports.listItems = (pathToDir) => {
 
 exports.createOutputFolder = (folderPath) => {
   try {
-    if (!fs.existsSync(`${folderPath}/output`)) {
-      fs.mkdirSync(`${folderPath}/output`)
+    if (!fs.existsSync(`${folderPath}/Season 01`)) {
+      fs.mkdirSync(`${folderPath}/Season 01`)
       console.log('Success Directory Created! 👍')
-      return `${folderPath}/output/`
+      return `${folderPath}/Season 01/`
     } else {
       console.log('directory exists! 😐')
-      return `${folderPath}/output/`
+      return `${folderPath}/Season 01/`
     }
   } catch (err) {
     console.error(err)
   }
 }
 
-exports.changeTitle = (item, outputFolder) => {
+exports.changeMetaTitle = (item, outputFolder) => {
   const command = ffmpeg(item.fullPath)
     .outputOptions('-codec copy')
     .outputOptions('-loglevel verbose')
-    .outputOptions('-metadata', `title=${item.filename}`)
+    .outputOptions('-metadata', `title=${sanitizeString(item.filename)}`)
     .on('error', function (err) {
       console.log('An error occurred: ' + err.message);
     })
@@ -75,5 +82,18 @@ exports.changeTitle = (item, outputFolder) => {
     .on('progress', (progress) => {
       console.log(progress);
     })
-    .save(`${outputFolder}${item.filename}${item.extname}`);
+    .save(`${outputFolder}${item.newname}${item.extname}`);
 };
+
+exports.copySrt = (items) => {
+
+  let newitems = items.filter(item => path.parse(item.fullPath).ext === '.srt')
+
+  console.log(newitems);
+  // items.forEach( item => {
+  //   fs.copyFile(item.fullPath, `${output}/${item.newname}`, (err) => {
+  //     if (err) throw err;
+  //     console.log('source.txt was copied to destination.txt');
+  //   });
+  // }) 
+}
