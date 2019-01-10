@@ -72,20 +72,20 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 // }
 
 
-function walkSync (dir) {
-  const flatten = arr => arr.reduce((acc, val) =>
-    acc.concat(Array.isArray(val) ? flatten(val) : val), []);
+// function walkSync (dir) {
+//   const flatten = arr => arr.reduce((acc, val) =>
+//     acc.concat(Array.isArray(val) ? flatten(val) : val), []);
 
-  Array.prototype.flatten = function () { return flatten(this) };
+//   Array.prototype.flatten = function () { return flatten(this) };
 
-  const walkSyncInternal = dir => fs.readdirSync(dir)
-    .map(file => fs.statSync(path.join(dir, file)).isDirectory()
-      ? walkSync(path.join(dir, file))
-      : path.join(dir, file).replace(/\\/g, '/')).flatten();
+//   const walkSyncInternal = dir => fs.readdirSync(dir)
+//     .map(file => fs.statSync(path.join(dir, file)).isDirectory()
+//       ? walkSync(path.join(dir, file))
+//       : path.join(dir, file).replace(/\\/g, '/')).flatten();
 
-  return walkSyncInternal(dir);    
-}
+//   return walkSyncInternal(dir);    
+// }
 
 
-const test = walkSync('/mnt/e/temp/React Front to Back');
-console.log(test);
+// const test = walkSync('/mnt/e/temp/React Front to Back');
+// console.log(test);
