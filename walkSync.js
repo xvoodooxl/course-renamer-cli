@@ -89,3 +89,28 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 // const test = walkSync('/mnt/e/temp/React Front to Back');
 // console.log(test);
+
+
+function getSubtitle(pathToFile) {
+  let subtitlePath = null;
+
+  const { dir, name } = path.parse(pathToFile);
+
+  const basePath = path.join(dir, name).replace(/\\/g, '/');
+  const ext = '.srt'
+  const lang = ['', '-en', '.en', '.es', '-es', '-eng', '.eng', '-spa', '.spa'];
+
+  for (let i = 0;  i <= lang.length ; i++) {
+    if(fs.existsSync(`${basePath}${lang[i]}${ext}`)) {
+      return subtitlePath = `${basePath}${lang[i]}${ext}`
+    }
+  }
+  
+  return subtitlePath;
+}
+
+const testPath = '/mnt/e/temp/React Front to Back/01. Course Introduction/1. Welcome To The Course.mp4'
+
+const subtitle = getSubtitle(testPath);
+
+console.log(subtitle);

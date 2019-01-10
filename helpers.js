@@ -13,7 +13,7 @@ exports.translateWinToWsl = (pathToTranslate) => {
  * Find all files inside a dir, recursively.
  * @function padNumber
  * @param  {string} number Number to pad
- * @param  {string} digits Amount of digits the number has to be padded default = 1
+ * @param  {string} digitsToPad Amount of digits the number has to be padded default = 1
  * @param  {string} amount Amount of zeros to add in front default = 1
  * @return {array[]} Array with all file names that are inside the directory.
  */
@@ -57,4 +57,23 @@ exports.walkSync = (dir) => {
       : path.join(dir, file).replace(/\\/g, '/')).flatten();
 
   return walk(dir);
+}
+
+
+exports.getSubtitle = (pathToFile) => {
+  let subtitlePath = null;
+
+  const { dir, name } = path.parse(pathToFile);
+
+  const basePath = path.join(dir, name).replace(/\\/g, '/');
+  const ext = '.srt'
+  const lang = ['', '-en', '.en', '.es', '-es', '-eng', '.eng', '-spa', '.spa'];
+
+  for (let i = 0; i <= lang.length; i++) {
+    if (fs.existsSync(`${basePath}${lang[i]}${ext}`)) {
+      return subtitlePath = `${basePath}${lang[i]}${ext}`
+    }
+  }
+
+  return subtitlePath;
 }
