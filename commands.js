@@ -98,26 +98,3 @@ const newSubtitlePath = `${path.join(output, item.newSubtitleName)}`
     });
   }
 }
-
-// function getSubtitle(pathToFile) {
-//   let subtitlePath = null;
-
-//   const { dir, name } = path.parse(pathToFile);
-
-//   basePath = path.join(dir, name).replace(/\\/g, '/');
-
-
-//   subtitlePathNo = `${path.join(dir, name).replace(/\\/g, '/')}.srt`;
-//   subtitlePathDash = `${path.join(dir, name).replace(/\\/g, '/')}-en.srt`;
-//   subtitlePathDot = `${path.join(dir, name).replace(/\\/g, '/')}.en.srt`;
-
-//   if (fs.existsSync(subtitlePathNo)) {
-//     subtitlePath = subtitlePathNo;
-//   } else if (fs.existsSync(subtitlePathDash)) {
-//     subtitlePath = subtitlePathDash;
-//   } else if (fs.existsSync(subtitlePathDot)) {
-//     subtitlePath = subtitlePathDot;
-//   }
-
-//   return subtitlePath;
-// }
