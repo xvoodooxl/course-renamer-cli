@@ -2,7 +2,7 @@
 const program = require('commander');
 const { listItems, createOutputFolder, changeMetaTitle, copySrt, processFiles } = require('./commands');
 
-const operation = (pathToDir, recursive) => {
+const operationRename = (pathToDir, recursive) => {
   const items = listItems(pathToDir, recursive);
   const processed = processFiles(items, recursive);
   const output = createOutputFolder(pathToDir);
@@ -23,7 +23,7 @@ program
   .option('-r, --recursive', 'Rename folders recursively')
   .alias('r')
   .description('Rename all files in the path folder')
-  .action((cmd) => operation(cwd, cmd.recursive));
+  .action((cmd) => operationRename(cwd, cmd.recursive));
 
 program.parse(process.argv);
 
