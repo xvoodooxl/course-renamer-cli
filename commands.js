@@ -1,9 +1,8 @@
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
-const { padNumber, sanitizeString } = require('./helpers');
+const { padNumber, sanitizeString, walkSync } = require('./helpers');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -11,46 +10,68 @@ ffmpeg.setFfmpegPath(ffmpegPath);
  * Find all files inside a dir, recursively.
  * @function listItems
  * @param  {string} dir path to directory to list all files that meet the req
+ * @param  {string} recursive Tells the funtion if it should list the files recursively
  * @return {array[]} Array with all file names that are inside the directory.
  */
 
-exports.listItems = (dir) => {
+exports.listItems = (dir, recursive = false) => {
+  let filtered = [];
+  if ( recursive === true ) {
+    filtered = walkSync(dir).filter(item => (path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'));
+  } else {
+    temp = fs.readdirSync(dir).filter(item => (path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'));
+    temp.forEach( (item) => {
+      let newItem = path.join(dir, item);
+      filtered.push(newItem);
+    })
+  }
+  return filtered;
+};
+
+exports.processFiles = (items, recursive = false) => {
   let counter = 1;
-  
-  const flatten = arr => arr.reduce((acc, val) =>
-    acc.concat(Array.isArray(val) ? flatten(val) : val), []);
-  Array.prototype.flatten = function () { return flatten(this) };
-
-  const walkSync = dir => fs.readdirSync(dir)
-    .map(file => fs.statSync(path.join(dir, file)).isDirectory()
-      ? walkSync(path.join(dir, file))
-      : path.join(dir, file).replace(/\\/g, '/')).flatten();
-
   const result = [];
 
-  const filtered = walkSync(dir).filter(item => (path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'));
-
-  console.log(filtered);
-
-  filtered.forEach(item => {
+  items.forEach(item => {
+    const { dir, base, ext, name } = path.parse(item);
     const data = {
-      fullPath: path.join(path.parse(item).dir, '/', path.parse(item).base).replace(/\\/g, '/'),
-      folderPath: path.parse(item).dir,
-      folderName: path.parse(item).dir.split('/').pop(),
-      extname: path.parse(item).ext,
-      filename: path.parse(item).name,
-      fullname: path.parse(item).dir.split('/').pop(),
-      number: counter
+      fullPath: path.join(dir, base).replace(/\\/g, '/'),
+      folderPath: dir,
+      folderName: sanitizeString(dir.split('/').pop()),
+      extname: ext,
+      filename: name,
+      fullname: dir.split('/').pop(),
+      number: counter,
     };
 
-    data.newname = `${path.parse(item).dir.split('/').slice(-2, -1)} - s01e${padNumber(counter)} - ${sanitizeString(data.filename)}`;
+    data.subtitlePath = getSubtitle(data.fullPath),
+    data.newname = `${recursive ? dir.split('/').slice(-2, -1) : data.folderName} - s01e${padNumber(counter)} - ${sanitizeString(data.filename)}`;
+    data.newSubtitleName = `${data.newname}.srt`
     result.push(data);
     counter = counter + 1;
   });
-
+  console.log(result);
   return result;
 };
 
+function getSubtitle(pathToFile) {
+  let subtitlePath = null;
+
+  const { dir, name } = path.parse(pathToFile);
+  subtitlePathNo = `${path.join(dir, name).replace(/\\/g, '/')}.srt`;
+  subtitlePathDash = `${path.join(dir, name).replace(/\\/g, '/')}-en.srt`;
+  subtitlePathDot = `${path.join(dir, name).replace(/\\/g, '/')}.en.srt`;
+
+  if (fs.existsSync(subtitlePathNo)) {
+    subtitlePath = subtitlePathNo;
+  } else if (fs.existsSync(subtitlePathDash)) {
+    subtitlePath = subtitlePathDash;
+  } else if (fs.existsSync(subtitlePathDot)) {
+    subtitlePath = subtitlePathDot;
+  }
+
+  return subtitlePath;
+}
 
 
 exports.createOutputFolder = (folderPath) => {
@@ -69,7 +90,7 @@ exports.createOutputFolder = (folderPath) => {
 }
 
 exports.changeMetaTitle = (item, outputFolder) => {
-  const command = ffmpeg(item.fullPath)
+   ffmpeg(item.fullPath)
     .outputOptions('-codec copy')
     .outputOptions('-loglevel verbose')
     .outputOptions('-metadata', `title=${sanitizeString(item.filename)}`)
@@ -77,23 +98,22 @@ exports.changeMetaTitle = (item, outputFolder) => {
       console.log('An error occurred: ' + err.message);
     })
     .on('end', function () {
-      console.log('Processing finished !');
+      console.log('Processing finished 😁!');
     })
     .on('progress', (progress) => {
-      console.log(progress);
+      // console.log(progress);
     })
     .save(`${outputFolder}${item.newname}${item.extname}`);
 };
 
-exports.copySrt = (items) => {
+exports.copySrt = (item, output) => {
+let subtitlePath = item.subtitlePath;
+const newSubtitlePath = `${path.join(output, item.newSubtitleName)}`
 
-  let newitems = items.filter(item => path.parse(item.fullPath).ext === '.srt')
-
-  console.log(newitems);
-  // items.forEach( item => {
-  //   fs.copyFile(item.fullPath, `${output}/${item.newname}`, (err) => {
-  //     if (err) throw err;
-  //     console.log('source.txt was copied to destination.txt');
-  //   });
-  // }) 
+  if (subtitlePath !== null) {
+    fs.copyFile(subtitlePath, newSubtitlePath, (err) => {
+      if (err) throw err;
+      console.log('Subtitle succesfully copied');
+    });
+  }
 }
