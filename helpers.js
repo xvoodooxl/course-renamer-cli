@@ -10,7 +10,7 @@ exports.translateWinToWsl = (pathToTranslate) => {
 }
 
 /**
- * Find all files inside a dir, recursively.
+ * Pad numbers with leading zeros for sorting 
  * @function padNumber
  * @param  {string} number Number to pad
  * @param  {string} digitsToPad Amount of digits the number has to be padded default = 1
@@ -44,6 +44,12 @@ exports.sanitizeString = (string) => {
   return newString;
 };
 
+/**
+ * Find all files inside a directory
+ * @function walkSync
+ * @param  {string} dir Path to directory to be parsed
+ * @return {array[]} Returns an array with al files
+ */
 
 exports.walkSync = (dir) => {
   const flatten = arr => arr.reduce((acc, val) =>
@@ -59,6 +65,12 @@ exports.walkSync = (dir) => {
   return walk(dir);
 }
 
+/**
+ * Find subtitle files that match the video file provided
+ * @function getSubtitle
+ * @param  {string} pathToFile Path to the video file in where to find the matches
+ * @return {string} String containing the first subtitle match
+ */
 
 exports.getSubtitle = (pathToFile) => {
   let subtitlePath = null;
