@@ -11,11 +11,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "commander": "^2.19.0",
-    "inquirer": "^6.2.1",
-    "mongoose": "^5.4.2",
     "@ffmpeg-installer/ffmpeg": "^1.0.17",
     "@ffprobe-installer/ffprobe": "^1.0.9",
-    "fluent-ffmpeg": "^2.1.2"
+    "commander": "^2.19.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "inquirer": "^6.2.1",
+    "mongoose": "^5.4.2",
+    "prettyjson": "^1.2.1"
   }
 }

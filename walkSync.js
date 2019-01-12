@@ -3,7 +3,8 @@ const os = require('os');
 const path = require('path');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
-const { padNumber, sanitizeString } = require('./helpers');
+const { padNumber, sanitizeString, walkSync } = require('./helpers');
+const { listItems } = require('./commands');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -91,26 +92,164 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 // console.log(test);
 
 
-function getSubtitle(pathToFile) {
-  let subtitlePath = null;
+// function getSubtitle(pathToFile) {
+//   let subtitlePath = null;
 
-  const { dir, name } = path.parse(pathToFile);
+//   const { dir, name } = path.parse(pathToFile);
 
-  const basePath = path.join(dir, name).replace(/\\/g, '/');
-  const ext = '.srt'
-  const lang = ['', '-en', '.en', '.es', '-es', '-eng', '.eng', '-spa', '.spa'];
+//   const basePath = path.join(dir, name).replace(/\\/g, '/');
+//   const ext = '.srt'
+//   const lang = ['', '-en', '.en', '.es', '-es', '-eng', '.eng', '-spa', '.spa'];
 
-  for (let i = 0;  i <= lang.length ; i++) {
-    if(fs.existsSync(`${basePath}${lang[i]}${ext}`)) {
-      return subtitlePath = `${basePath}${lang[i]}${ext}`
-    }
-  }
+//   for (let i = 0;  i <= lang.length ; i++) {
+//     if(fs.existsSync(`${basePath}${lang[i]}${ext}`)) {
+//       return subtitlePath = `${basePath}${lang[i]}${ext}`
+//     }
+//   }
   
-  return subtitlePath;
+//   return subtitlePath;
+// }
+
+// const testPath = '/mnt/e/temp/React Front to Back/01. Cours2313132e Introduction/1. Welcome To The Course.mp4'
+
+// const subtitle = getSubtitle(testPath);
+
+// console.log(subtitle);
+
+
+// testDirectory = '/mnt/e/temp/React Front to Back' 
+// // testString = '10. Client Panel Firebase Project - Part 1';
+
+// const folderSortOrder = (string) => {
+//   console.log(string);
+//   // const substring = ;
+//   let numb = string.slice(0, 5).match(/\d/g).join('');
+//   const folder = sanitizeString(string);
+//   numb = padNumber(numb, 3);
+
+//   const newName = `${numb}. ${folder}`
+//   return newName;
+// }
+
+// // const result = folderSortOrder(testString);
+// // console.log(result);
+
+// const getDirectories = (directory) => {
+//   const isDirectory = fileName => {
+//     return fs.lstatSync(fileName).isDirectory();
+//   }
+
+//   return fs.readdirSync(directory).map(fileName => {
+//     return path.join(directory, fileName)
+//   }).filter(isDirectory);
+// };
+
+// // const test = getDirectories(testDirectory);
+// // console.log(test);
+
+
+// const sanitizeDirectory = (directory) => {
+//   const original = getDirectories(directory);
+
+//   original.forEach(item => {
+//     const {base, dir} = path.parse(item);
+//     const newName = folderSortOrder(base);
+
+//     fs.rename(item, path.join(dir, newName), (err) => {
+//       console.log(err);
+//     });
+//   });
+// };
+
+// const sanitizeFiles = (directory) => {
+//   const list = walkSync(testDirectory);
+//   list.forEach(item => {
+//     const { base, dir } = path.parse(item);
+//     const newName = folderSortOrder(base);
+//       console.log(item);
+//     fs.rename(item, path.join(dir, newName), (err) => {
+//       console.log(err);
+//     });
+//   });
+// };
+
+// // const testSanitize = sanitizeDirectory(testDirectory);
+
+// sanitizeFiles(testDirectory);
+
+const pretty = require('prettyjson');
+
+const data = {
+  name: 'Fermin',
+  Age: 26,
+  Domain: 'ferSolis.io',
+  Email: 'contact@ferSolis.io',
+  Address: 'Domingo Funes 450',
+  Status: true,
+  dogs: { 
+    dog1: 'Nala', 
+    dog2: 'Molly'
+  }
 }
 
-const testPath = '/mnt/e/temp/React Front to Back/01. Course Introduction/1. Welcome To The Course.mp4'
+const data2 = [
+  {
+    name: 'Fermin',
+    Age: 26,
+    Domain: 'ferSolis.io',
+    Email: 'contact@ferSolis.io',
+    Address: 'Domingo Funes 450',
+    Status: true,
+    dogs: {
+      dog1: 'Nala',
+      dog2: 'Molly'
+    }
+  },
+  {
+    name: 'Fermin',
+    Age: 26,
+    Domain: 'ferSolis.io',
+    Email: 'contact@ferSolis.io',
+    Address: 'Domingo Funes 450',
+    Status: true,
+    dogs: {
+      dog1: 'Nala',
+      dog2: 'Molly'
+    }
+  },
+  {
+    name: 'Fermin',
+    Age: 26,
+    Domain: 'ferSolis.io',
+    Email: 'contact@ferSolis.io',
+    Address: 'Domingo Funes 450',
+    Status: true,
+    dogs: {
+      dog1: 'Nala',
+      dog2: 'Molly'
+    }
+  } 
+];
 
-const subtitle = getSubtitle(testPath);
+// console.log(pretty.render(data));
 
-console.log(subtitle);
+// console.log(pretty.render(data, {
+//   keysColor: 'yellow',
+//   dashColor: 'magenta',
+//   stringColor: 'white',
+//   numberColor: 'white',
+
+// }));
+
+function consolePretty(data) {
+  const options = {
+    keysColor: 'yellow',
+    dashColor: 'magenta',
+    stringColor: 'white',
+    numberColor: 'white',
+  }
+
+  return console.log(pretty.render(data, options))
+};
+
+consolePretty(data2);

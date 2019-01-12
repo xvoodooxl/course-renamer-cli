@@ -1,10 +1,25 @@
 #!/usr/bin/env node
 const program = require('commander');
-const { listItems, createOutputFolder, changeMetaTitle, copySrt, processFiles } = require('./commands');
+const { 
+  listItems,
+  createOutputFolder,
+  changeMetaTitle,
+  copySrt,
+  processFiles,
+  sanitizeDirectory,
+  sanitizeFiles } = require('./commands');
 
 const operationRename = (pathToDir, recursive) => {
+  
+  if (recursive === true) { 
+    sanitizeFiles(pathToDir);
+    sanitizeDirectory(pathToDir); 
+  };
+
   const items = listItems(pathToDir, recursive);
   const processed = processFiles(items, recursive);
+
+  // console.log(processed);
   const output = createOutputFolder(pathToDir);
   processed.forEach((item) => {
     copySrt(item, output)

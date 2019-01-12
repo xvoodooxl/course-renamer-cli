@@ -1,5 +1,6 @@
 const path = require('path');
 const fs = require('fs');
+const prettyJson = require('prettyjson');
 
 exports.translateWinToWsl = (pathToTranslate) => {
   let sepa = pathToTranslate.split(path.win32.sep);
@@ -18,28 +19,22 @@ exports.translateWinToWsl = (pathToTranslate) => {
  * @return {array[]} Array with all file names that are inside the directory.
  */
 
-exports.padNumber = (number, digitsToPad = 1) => {
+const padNumber = exports.padNumber = (number, digitsToPad = 2) => {
   // check if input is string, if it isnt make it a tring
-  if (typeof number !== 'string') {
-    number = (number + '');
+  let output = number + '';
+
+  while (output.length < digitsToPad) {
+    output = '0' + output;
   }
-  
-  const digits = number.split('');
-  if (digits.length <= digitsToPad) {
-    number = 0 + number;
-  }
-  return number;
+
+  return output;
 }
 
+const sanitizeString = exports.sanitizeString = (string) => {
+  subStr1 = string.slice(0, 8).replace(/[0-9\_\-\.]/g, '').trim();
+  subStr2 = string.slice(8)
 
-exports.sanitizeString = (string) => {
-  // Remove dots or underscores  
-  string = string.replace(/720|1080/g, " ");
-  string = string.replace(/\./g, "");
-  // Remove Underscores
-  string = string.replace(/\_|\-/g, " ");
-  const noNum = string.replace(/[0-9]/g, '').trim();
-  const newString = `${noNum}`;
+  const newString = `${subStr1}${subStr2}`;
 
   return newString;
 };
@@ -89,3 +84,35 @@ exports.getSubtitle = (pathToFile) => {
 
   return subtitlePath;
 }
+
+exports.folderSortOrder = (string) => {
+  // console.log(string);
+  // const substring = ;
+  let numb = string.slice(0, 5).match(/\d/g).join('');
+  const folder = sanitizeString(string);
+  numb = padNumber(numb, 3);
+
+  const newName = `${numb}. ${folder}`
+  return newName;
+}
+
+exports.getDirectories = (directory) => {
+  const isDirectory = fileName => {
+    return fs.lstatSync(fileName).isDirectory();
+  }
+
+  return fs.readdirSync(directory).map(fileName => {
+    return path.join(directory, fileName)
+  }).filter(isDirectory);
+};
+
+exports.jsonPretty = (data) => {
+  const options = {
+    keysColor: 'yellow',
+    dashColor: 'magenta',
+    stringColor: 'white',
+    numberColor: 'white',
+  }
+
+  return console.log(prettyJson.render(data, options))
+};

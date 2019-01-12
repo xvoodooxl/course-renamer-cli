@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
-const { padNumber, sanitizeString, walkSync, getSubtitle } = require('./helpers');
+const { padNumber, sanitizeString, walkSync, getSubtitle, folderSortOrder, getDirectories } = require('./helpers');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -21,7 +21,7 @@ exports.listItems = (dir, recursive = false) => {
   } else {
     temp = fs.readdirSync(dir).filter(item => (path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'));
     temp.forEach( (item) => {
-      let newItem = path.join(dir, item);
+      let newItem = path.join(dir, item).replace(/\\/g, '/');
       filtered.push(newItem);
     })
   }
@@ -50,7 +50,7 @@ exports.processFiles = (items, recursive = false) => {
     result.push(data);
     counter = counter + 1;
   });
-  console.log(result);
+  // console.log(result);
   return result;
 };
 
@@ -79,7 +79,7 @@ exports.changeMetaTitle = (item, outputFolder) => {
       console.log('An error occurred: ' + err.message);
     })
     .on('end', function () {
-      console.log('Processing finished 😁!');
+      console.log(`Processing finished for file ${item.newname} 😁!`);
     })
     .on('progress', (progress) => {
       // console.log(progress);
@@ -98,3 +98,28 @@ const newSubtitlePath = `${path.join(output, item.newSubtitleName)}`
     });
   }
 }
+
+exports.sanitizeFiles = (directory) => {
+  const list = walkSync(directory);
+  list.forEach(item => {
+    const { base, dir } = path.parse(item);
+    const newName = folderSortOrder(base);
+    // console.log(item);
+    fs.rename(item, path.join(dir, newName), (err) => {
+      // console.log(err);
+    });
+  });
+};
+
+exports.sanitizeDirectory = (directory) => {
+  const original = getDirectories(directory);
+
+  original.forEach(item => {
+    const { base, dir } = path.parse(item);
+    const newName = folderSortOrder(base);
+
+    fs.rename(item, path.join(dir, newName), (err) => {
+      // console.log(err);
+    });
+  });
+};
