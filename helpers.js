@@ -111,7 +111,7 @@ exports.jsonPretty = (data) => {
     keysColor: 'yellow',
     dashColor: 'magenta',
     stringColor: 'white',
-    numberColor: 'white',
+    numberColor: 'blue',
   }
 
   return console.log(prettyJson.render(data, options))
