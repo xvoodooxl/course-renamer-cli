@@ -53,7 +53,6 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 //   return result;
 // };
 
-
 // exports.copySrt = (items) => {
 //   // TODO - Grab list of files
 
@@ -69,9 +68,8 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 //   //     if (err) throw err;
 //   //     console.log('source.txt was copied to destination.txt');
 //   //   });
-//   // }) 
+//   // })
 // }
-
 
 // function walkSync (dir) {
 //   const flatten = arr => arr.reduce((acc, val) =>
@@ -84,13 +82,11 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 //       ? walkSync(path.join(dir, file))
 //       : path.join(dir, file).replace(/\\/g, '/')).flatten();
 
-//   return walkSyncInternal(dir);    
+//   return walkSyncInternal(dir);
 // }
-
 
 // const test = walkSync('/mnt/e/temp/React Front to Back');
 // console.log(test);
-
 
 // function getSubtitle(pathToFile) {
 //   let subtitlePath = null;
@@ -106,7 +102,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 //       return subtitlePath = `${basePath}${lang[i]}${ext}`
 //     }
 //   }
-  
+
 //   return subtitlePath;
 // }
 
@@ -116,8 +112,7 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 // console.log(subtitle);
 
-
-// testDirectory = '/mnt/e/temp/React Front to Back' 
+// testDirectory = '/mnt/e/temp/React Front to Back'
 // // testString = '10. Client Panel Firebase Project - Part 1';
 
 // const folderSortOrder = (string) => {
@@ -146,7 +141,6 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 // // const test = getDirectories(testDirectory);
 // // console.log(test);
-
 
 // const sanitizeDirectory = (directory) => {
 //   const original = getDirectories(directory);
@@ -186,11 +180,11 @@ const data = {
   Email: 'contact@ferSolis.io',
   Address: 'Domingo Funes 450',
   Status: true,
-  dogs: { 
-    dog1: 'Nala', 
-    dog2: 'Molly'
-  }
-}
+  dogs: {
+    dog1: 'Nala',
+    dog2: 'Molly',
+  },
+};
 
 const data2 = [
   {
@@ -202,8 +196,8 @@ const data2 = [
     Status: true,
     dogs: {
       dog1: 'Nala',
-      dog2: 'Molly'
-    }
+      dog2: 'Molly',
+    },
   },
   {
     name: 'Fermin',
@@ -214,8 +208,8 @@ const data2 = [
     Status: true,
     dogs: {
       dog1: 'Nala',
-      dog2: 'Molly'
-    }
+      dog2: 'Molly',
+    },
   },
   {
     name: 'Fermin',
@@ -226,9 +220,9 @@ const data2 = [
     Status: true,
     dogs: {
       dog1: 'Nala',
-      dog2: 'Molly'
-    }
-  } 
+      dog2: 'Molly',
+    },
+  },
 ];
 
 // console.log(pretty.render(data));
@@ -247,9 +241,9 @@ function consolePretty(data) {
     dashColor: 'magenta',
     stringColor: 'white',
     numberColor: 'white',
-  }
+  };
 
-  return console.log(pretty.render(data, options))
-};
+  return console.log(pretty.render(data, options));
+}
 
 consolePretty(data2);
