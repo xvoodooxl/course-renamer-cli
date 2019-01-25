@@ -2,7 +2,14 @@ const fs = require('fs');
 const path = require('path');
 const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
-const { padNumber, sanitizeString, walkSync, getSubtitle, folderSortOrder, getDirectories } = require('./helpers');
+const {
+  padNumber,
+  sanitizeString,
+  walkSync,
+  getSubtitle,
+  folderSortOrder,
+  getDirectories,
+} = require('./helpers');
 
 ffmpeg.setFfmpegPath(ffmpegPath);
 
@@ -16,14 +23,21 @@ ffmpeg.setFfmpegPath(ffmpegPath);
 
 exports.listItems = (dir, recursive = false) => {
   let filtered = [];
-  if ( recursive === true ) {
-    filtered = walkSync(dir).filter(item => (path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'));
+  if (recursive === true) {
+    filtered = walkSync(dir).filter(
+      item => path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'
+    );
   } else {
-    temp = fs.readdirSync(dir).filter(item => (path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'));
-    temp.forEach( (item) => {
-      let newItem = path.join(dir, item).replace(/\\/g, '/');
+    const temp = fs
+      .readdirSync(dir)
+      .filter(
+        item =>
+          path.parse(item).ext === '.mp4' || path.parse(item).ext === '.mkv'
+      );
+    temp.forEach(item => {
+      const newItem = path.join(dir, item).replace(/\\/g, '/');
       filtered.push(newItem);
-    })
+    });
   }
   return filtered;
 };
@@ -44,81 +58,82 @@ exports.processFiles = (items, recursive = false) => {
       number: counter,
     };
 
-    data.subtitlePath = getSubtitle(data.fullPath),
-    data.newname = `${recursive ? dir.split('/').slice(-2, -1) : data.folderName} - s01e${padNumber(counter)} - ${sanitizeString(data.filename)}`;
-    data.newSubtitleName = `${data.newname}.srt`
+    (data.subtitlePath = getSubtitle(data.fullPath))(
+      (data.newname = `${
+        recursive ? dir.split('/').slice(-2, -1) : data.folderName
+      } - s01e${padNumber(counter)} - ${sanitizeString(data.filename)}`)
+    );
+    data.newSubtitleName = `${data.newname}.srt`;
     result.push(data);
-    counter = counter + 1;
+    counter += 1;
   });
   // console.log(result);
   return result;
 };
 
-
-exports.createOutputFolder = (folderPath) => {
+exports.createOutputFolder = folderPath => {
   try {
     if (!fs.existsSync(`${folderPath}/Season 01`)) {
-      fs.mkdirSync(`${folderPath}/Season 01`)
-      console.log('Success Directory Created! 👍')
-      return `${folderPath}/Season 01/`
-    } else {
-      console.log('directory exists! 😐')
-      return `${folderPath}/Season 01/`
+      fs.mkdirSync(`${folderPath}/Season 01`);
+      console.log('Success Directory Created! 👍');
+      return `${folderPath}/Season 01/`;
     }
+    console.log('directory exists! 😐');
+    return `${folderPath}/Season 01/`;
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-}
+};
 
 exports.changeMetaTitle = (item, outputFolder) => {
-   ffmpeg(item.fullPath)
+  ffmpeg(item.fullPath)
     .outputOptions('-codec copy')
     .outputOptions('-loglevel verbose')
     .outputOptions('-metadata', `title=${sanitizeString(item.filename)}`)
-    .on('error', function (err) {
-      console.log('An error occurred: ' + err.message);
+    .on('error', err => {
+      console.log(`An error occurred: ${err.message}`);
     })
-    .on('end', function () {
+    .on('end', () => {
       console.log(`Processing finished for file ${item.newname} 😁!`);
     })
-    .on('progress', (progress) => {
+    .on('progress', progress => {
       // console.log(progress);
     })
     .save(`${outputFolder}${item.newname}${item.extname}`);
 };
 
 exports.copySrt = (item, output) => {
-let subtitlePath = item.subtitlePath;
-const newSubtitlePath = `${path.join(output, item.newSubtitleName)}`
+  const { subtitlePath } = item;
+  const newSubtitlePath = `${path.join(output, item.newSubtitleName)}`;
 
   if (subtitlePath !== null) {
-    fs.copyFile(subtitlePath, newSubtitlePath, (err) => {
+    fs.copyFile(subtitlePath, newSubtitlePath, err => {
       if (err) throw err;
       console.log('Subtitle succesfully copied');
     });
   }
-}
+};
 
-exports.sanitizeFiles = (directory) => {
+exports.sanitizeFiles = directory => {
   const list = walkSync(directory);
   list.forEach(item => {
     const { base, dir } = path.parse(item);
     const newName = folderSortOrder(base);
     // console.log(item);
-    fs.rename(item, path.join(dir, newName), (err) => {
+    fs.rename(item, path.join(dir, newName), err => {
       // console.log(err);
     });
   });
 };
 
-exports.sanitizeDirectory = (directory) => {
+exports.sanitizeDirectory = directory => {
   const original = getDirectories(directory);
 
   original.forEach(item => {
     const { base, dir } = path.parse(item);
     const newName = folderSortOrder(base);
 
-    fs.rename(item, path.join(dir, newName), (err) => {
+    fs.rename(item, path.join(dir, newName), err => {
       // console.log(err);
     });
   });
